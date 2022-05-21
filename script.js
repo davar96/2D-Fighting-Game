@@ -146,7 +146,10 @@ function animate() {
     ) {
         enemy.takeHit();
         player.isAttacking = false;
-        document.getElementById('enemyHealth').style.width = enemy.health + '%';
+
+        gsap.to('#enemyHealth', {
+            width: enemy.health + '%',
+        });
     }
 
     if (player.isAttacking && player.framesCurrent === 4) {
@@ -160,7 +163,9 @@ function animate() {
     ) {
         player.takeHit();
         enemy.isAttacking = false;
-        document.getElementById('playerHealth').style.width = player.health + '%';
+        gsap.to('#playerHealth', {
+            width: player.health + '%',
+        });
     }
 
     if (enemy.isAttacking && enemy.framesCurrent === 2) {
