@@ -19,13 +19,13 @@ const background = new Sprite({
 });
 
 const player = new Fighter({
-    position: { x: 0, y: 0 },
+    position: { x: 200, y: 0 },
     velocity: { x: 0, y: 0 },
     offset: { x: 0, y: 0 },
     imageSrc: './img/player1/Idle.png',
     framesMax: 8,
     scale: 3.3,
-    offset: { x: 50, y: 280 },
+    offset: { x: 215, y: 280 },
     sprites: {
         idle: { imageSrc: './img/player1/Idle.png', framesMax: 8 },
         run: { imageSrc: './img/player1/Run.png', framesMax: 8 },
@@ -36,20 +36,20 @@ const player = new Fighter({
         death: { imageSrc: './img/player1/Death.png', framesMax: 6 },
     },
     attackBox: {
-        offset: { x: 330, y: -90 },
+        offset: { x: 165, y: -90 },
         width: 245,
         height: 210,
     },
 });
 
 const enemy = new Fighter({
-    position: { x: 700, y: 100 },
+    position: { x: 900, y: 100 },
     velocity: { x: 0, y: 0 },
-    offset: { x: 50, y: 0 },
+    offset: { x: -50, y: 0 },
     imageSrc: './img/player2/Idle.png',
     framesMax: 4,
     scale: 3.3,
-    offset: { x: 0, y: 298 },
+    offset: { x: 215, y: 298 },
     sprites: {
         idle: { imageSrc: './img/player2/Idle.png', framesMax: 4 },
         run: { imageSrc: './img/player2/Run.png', framesMax: 8 },
@@ -60,14 +60,11 @@ const enemy = new Fighter({
         death: { imageSrc: './img/player2/Death.png', framesMax: 7 },
     },
     attackBox: {
-        offset: { x: 0, y: 0 },
-        width: 100,
-        height: 50,
+        offset: { x: -175, y: -90 },
+        width: 245,
+        height: 210,
     },
 });
-
-player.draw();
-enemy.draw();
 
 const key = {
     q: {
@@ -76,16 +73,10 @@ const key = {
     d: {
         pressed: false,
     },
-    z: {
-        pressed: false,
-    },
     ArrowLeft: {
         pressed: false,
     },
     ArrowRight: {
-        pressed: false,
-    },
-    ArrowUp: {
         pressed: false,
     },
 };
@@ -99,46 +90,46 @@ function animate() {
     background.update();
     player.update();
     enemy.update();
-
     player.velocity.x = 0;
     enemy.velocity.x = 0;
 
+    // player1 movements
     if (key.q.pressed && player.lastKey === 'q') {
         player.velocity.x = -5;
         player.switchSprite('run');
     } else if (key.d.pressed && player.lastKey === 'd') {
         player.velocity.x = 5;
         player.switchSprite('run');
-    } else if (player.velocity.y < 0) {
-        player.switchSprite('jump');
     } else {
         player.switchSprite('idle');
     }
 
+    //jumping
     if (player.velocity.y < 0) {
         player.switchSprite('jump');
     } else if (player.velocity.y > 0) {
         player.switchSprite('fall');
     }
 
+    // player2 movements
     if (key.ArrowLeft.pressed && enemy.lastKey === 'ArrowLeft') {
         enemy.velocity.x = -5;
         enemy.switchSprite('run');
     } else if (key.ArrowRight.pressed && enemy.lastKey === 'ArrowRight') {
         enemy.velocity.x = 5;
         enemy.switchSprite('run');
-    } else if (enemy.velocity.y < 0) {
-        enemy.switchSprite('jump');
     } else {
         enemy.switchSprite('idle');
     }
 
+    //jumping
     if (enemy.velocity.y < 0) {
         enemy.switchSprite('jump');
     } else if (enemy.velocity.y > 0) {
         enemy.switchSprite('fall');
     }
 
+    //collision detection
     if (
         rectangularCollision({ rectangle1: player, rectangle2: enemy }) &&
         player.isAttacking &&
@@ -152,10 +143,12 @@ function animate() {
         });
     }
 
+    // missed
     if (player.isAttacking && player.framesCurrent === 4) {
         player.isAttacking = false;
     }
 
+    //get hit
     if (
         rectangularCollision({ rectangle1: enemy, rectangle2: player }) &&
         enemy.isAttacking &&
@@ -163,15 +156,18 @@ function animate() {
     ) {
         player.takeHit();
         enemy.isAttacking = false;
+
         gsap.to('#playerHealth', {
             width: player.health + '%',
         });
     }
 
+    // missed
     if (enemy.isAttacking && enemy.framesCurrent === 2) {
         enemy.isAttacking = false;
     }
 
+    //game over based on health
     if (enemy.health <= 0 || player.health <= 0) {
         determineWinner({ player, enemy, timerID });
     }
@@ -210,7 +206,6 @@ window.addEventListener('keydown', event => {
                 enemy.lastKey = 'ArrowLeft';
                 break;
             case 'ArrowUp':
-                key.ArrowUp.pressed = true;
                 enemy.velocity.y = -20;
                 break;
             case 'Shift':
@@ -228,9 +223,6 @@ window.addEventListener('keyup', event => {
         case 'q':
             key.q.pressed = false;
             break;
-        case 'z':
-            key.z.pressed = false;
-            break;
     }
 
     switch (event.key) {
@@ -239,9 +231,6 @@ window.addEventListener('keyup', event => {
             break;
         case 'ArrowLeft':
             key.ArrowLeft.pressed = false;
-            break;
-        case 'ArrowUp':
-            key.ArrowUp.pressed = false;
             break;
     }
 });
